@@ -263,6 +263,15 @@ def train(cfg: TrainPipelineConfig, accelerator: Accelerator | None = None):
                 "norm_map": policy.config.normalization_mapping,
             },
         }
+        if getattr(cfg.policy, "use_relative_actions", False):
+            processor_kwargs["preprocessor_overrides"]["relative_actions_processor"] = {
+                "enabled": True,
+                "exclude_joints": getattr(cfg.policy, "relative_exclude_joints", []),
+                "action_names": getattr(cfg.policy, "action_feature_names", None),
+            }
+            postprocessor_kwargs["postprocessor_overrides"]["absolute_actions_processor"] = {
+                "enabled": True
+            }
 
     preprocessor, postprocessor = make_pre_post_processors(
         policy_cfg=cfg.policy,
